@@ -1,5 +1,7 @@
 import './style.css'
-
+import { v4 } from 'uuid'
+import 'toastify-js/src/toastify.css'
+import Toastify from 'toastify-js'
 //le puedo decir al queryselector que es lo que estoy agarrando para que me de autocompletado
 const taskForm = document.querySelector<HTMLFormElement>("#taskForm");
 const tasksList = document.querySelector<HTMLDivElement>("#tasksList");
@@ -7,7 +9,8 @@ const tasksList = document.querySelector<HTMLDivElement>("#tasksList");
 
 interface Task {
   title: string,
-  description: string
+  description: string,
+  id: string
 }
 
 let tasks: Task[] = []
@@ -22,9 +25,14 @@ taskForm?.addEventListener('submit', e => {
   tasks.push({
     title: title.value,
     description: description.value,
+    id: v4()
   })
 
   localStorage.setItem('tasks', JSON.stringify(tasks));
+
+  Toastify({
+    text: "Added task"
+  }).showToast()
 
   renderTasks(tasks)
 
@@ -64,6 +72,13 @@ function renderTasks(tasks: Task[]) {
     btnDelete.innerText = 'delete'
 
     btnDelete.className = 'bg-red-500 px-2 py-1 rounded-md'
+
+    btnDelete.addEventListener('click', e => {
+      const index = tasks.findIndex(t => t.id === task.id)
+      tasks.splice(index, 1)
+      localStorage.setItem('tasks', JSON.stringify(tasks))
+      renderTasks(tasks)
+    })
 
     const description = document.createElement('p')
 
